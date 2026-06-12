@@ -1,15 +1,68 @@
-# Apple-Actions/upload-testflight-build
+# GitHub Action to upload to Apple's TestFlight service
 
-Uploads an app to Apple TestFlight
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](LICENSE)
+[![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/Apple-Actions/upload-testflight-build](https://github.com/Apple-Actions/upload-testflight-build).
+## Getting Started (can be the same key as the [download provisioning profiles action](https://github.com/Apple-Actions/download-provisioning-profiles/blob/master/README.md#getting-started))
 
-## Versions
+* Create an `App Store Connect API Key` ([these instructions](https://developer.apple.com/documentation/appstoreconnectapi/creating-api-keys-for-app-store-connect-api) with the role `App Manager`)
+* Download the certificate (must be done upon creation and will be called `ios_distribution.cer`)
+* Copy the `.p8` ( `cat AuthKey_<key_id>.p8 | pbcopy` )
+* Add it as a secret called `APPSTORE_API_PRIVATE_KEY` and add `Key ID` as a variable called `APPSTORE_API_KEY_ID`
+* Add `Issuer ID` as a variable called `APPSTORE_ISSUER_ID` ([found here](https://appstoreconnect.apple.com/access/integrations/api))
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v5.1.0 | [`v5.1.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.1.0) | [`b726677`](https://github.com/Apple-Actions/upload-testflight-build/commit/b72667704c7f5ecb2f1dddd131870b477d86a313) |
-| v5.2.1 | [`v5.2.1`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.2.1) | [`1ad5803`](https://github.com/Apple-Actions/upload-testflight-build/commit/1ad58030672057aa084b4e96beb6f7a8c627f9e6) |
+## Usage:
+
+```yaml
+- name: 'Upload app to TestFlight'
+  uses: apple-actions/upload-testflight-build@v4
+  with: 
+    app-path: 'path/to/application.ipa' 
+    issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
+    api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
+    api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+    release-notes: ${{ steps.generate_notes.outputs.whats_new }} # optional
+    uses-non-exempt-encryption: 'false' # optional: "true" or "false" maps directly to App Store Connect usesNonExemptEncryption
+    wait-for-processing: 'true' # optional: set to "false" to skip waiting (metadata updates will be skipped)
+    backend: AppStoreAPI # optional: AppStoreAPI | transporter | altool (default: AppStoreAPI; case insensitive)
+```
+
+> [!IMPORTANT]
+> `transporter` backend requires Transporter to be installed on the runner and the action now calls the installed binary directly (no `xcrun` shim).
+> The GitHub hosted runners (Xcode 14+) do not have Transporter installed by default.
+> You can install it in your workflow before this action runs:
+>
+> ```yaml
+> - name: Install Transporter
+>   run: |
+>     url="https://itunesconnect.apple.com/WebObjects/iTunesConnect.woa/ra/resources/download/public/Transporter__OSX/bin/"
+>     curl -fsSL "$url" -o "/tmp/itmstransporter.pkg"
+>     sudo installer -pkg "/tmp/itmstransporter.pkg" -target /
+>     /usr/local/itms/bin/iTMSTransporter -help
+> ```
+>
+> Alternatively, use a self-hosted runner that already has Transporter installed at `/usr/local/itms/bin/iTMSTransporter`.
+
+> [!NOTE]
+> The default `appstore-api` backend only supports `.ipa` uploads. For macOS (`.pkg`) builds, set `backend: altool` or `backend: transporter`.
+
+## Upgrading from v3 or earlier v4
+
+* The default upload backend is now `appstore-api` (uses the App Store Connect API directly and works on Linux and macOS runners). If you depended on the previous behavior, set `backend: altool` or `backend: transporter`.
+* The `transporter-response` output has been removed. Use the `upload-backend` output if you need to know which backend handled the upload.
+
+
+## Additional Arguments
+
+See [action.yml](action.yml) for more details.
+
+## Contributing
+
+We welcome your interest in contributing to this project. Please read the [Contribution Guidelines](CONTRIBUTING.md) for more guidance.
+
+## License
+
+Any contributions made under this project will be governed by the [MIT License](LICENSE).
 
 ## Privacy
 
