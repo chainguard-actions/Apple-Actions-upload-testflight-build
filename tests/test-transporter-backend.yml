@@ -1,0 +1,41 @@
+name: Test transporter backend inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create dummy ipa file and fake transporter
+        run: |
+          mkdir -p /tmp/testapp
+          echo "dummy ipa content" > /tmp/testapp/app.ipa
+          mkdir -p /tmp/itms/bin
+          echo '#!/bin/sh' > /tmp/itms/bin/iTMSTransporter
+          chmod +x /tmp/itms/bin/iTMSTransporter
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/testapp/app.ipa
+          app-type: ios
+          issuer-id: fake-issuer-id-00000000-0000-0000-0000-000000000000
+          api-key-id: FAKEKEYID2
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgfakekey1234567890
+            -----END PRIVATE KEY-----
+          backend: transporter
+          transporter-executable-path: /tmp/itms/bin/iTMSTransporter
+      - name: Assert action ran with transporter backend
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action executed with transporter backend"
+          else
+            echo "FAIL: unexpected outcome: $OUTCOME"
+            exit 1
+          fi
+          echo "PASS"

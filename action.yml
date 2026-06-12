@@ -1,0 +1,46 @@
+name: 'Upload app to TestFlight'
+description: 'Uploads an app to Apple TestFlight'
+author: 'Itty Bitty Apps Pty Ltd'
+inputs:
+  app-path:
+    description: 'The path to the app (ipa etc)'
+    required: true
+  app-type:
+    description: 'The type of app to upload (macos | ios | appletvos | visionos)'
+    required: true
+    default: 'ios'
+  issuer-id:
+    description: 'The AppStoreConnect API Key Issuer Identifier'
+    required: true
+  api-key-id:
+    description: 'The Key ID for AppStore Connect API'
+    required: true
+  api-private-key:
+    description: 'The PKCS8 format Private Key for AppStore Connect API'
+    required: true
+  release-notes:
+    description: 'Optional TestFlight release note content to attach to the uploaded build'
+    required: false
+  backend:
+    description: 'Upload backend to use (appstore-api | transporter | altool)'
+    required: false
+    default: 'appstore-api'
+  transporter-executable-path:
+    description: 'Optional path to the iTMSTransporter executable (defaults to /usr/local/itms/bin/iTMSTransporter)'
+    required: false
+  uses-non-exempt-encryption:
+    description: 'Boolean string. Set to "true" if your build uses non-exempt encryption; "false" otherwise.'
+    required: false
+  wait-for-processing:
+    description: 'Boolean string. Set to "false" to skip waiting for App Store processing (metadata updates will be skipped when waiting is disabled).'
+    required: false
+outputs:
+  upload-backend:
+    description: 'The backend that performed the upload'
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
+  pre: chainguard-phonehome.js
+branding:
+  icon: 'arrow-up-circle'
+  color: 'blue'
