@@ -1,0 +1,40 @@
+name: Test basic upload inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create dummy IPA file
+        run: |
+          mkdir -p /tmp/testapp
+          echo "dummy ipa content" > /tmp/testapp/MyApp.ipa
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/testapp/MyApp.ipa
+          app-type: ios
+          issuer-id: 00000000-0000-0000-0000-000000000000
+          api-key-id: ABCDEF1234
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgfake/key/data/here
+            /fakefakefakefakefakefakefakefakefakefakefake=
+            -----END PRIVATE KEY-----
+          wait-for-processing: "false"
+      - name: Assert action ran (output or expected failure)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          UPLOAD_BACKEND: ${{ steps.action.outputs.upload-backend }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "upload-backend: $UPLOAD_BACKEND"
+          # The action will fail with invalid credentials, which is expected.
+          # We just verify it ran (not skipped) and produced some output or failed gracefully.
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran with outcome=$OUTCOME"
