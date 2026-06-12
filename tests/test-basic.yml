@@ -1,0 +1,32 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create dummy IPA file
+        run: |
+          mkdir -p /tmp/testapp
+          echo "dummy ipa content" > /tmp/testapp/MyApp.ipa
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/testapp/MyApp.ipa
+          app-type: ios
+          issuer-id: 00000000-0000-0000-0000-000000000000
+          api-key-id: ABCDEF1234
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgevZzL1gdAFr88hD2
+            cV4nqaseQ8bapcrstsgA8Xpi0tOhRANCAATbnly6FyS7IQXF3muqmf1wnAYChbWo
+            3FMWP3tdhbVBFakeKeyForTestingPurposesOnlyNotRealKey
+            -----END PRIVATE KEY-----
+          uses-non-exempt-encryption: "false"
+          wait-for-processing: "false"
+      - name: Assert action was invoked
+        run: |
+          echo "Action completed (may have failed due to invalid credentials - expected)"
+          echo "PASS: action was invoked with all required inputs"

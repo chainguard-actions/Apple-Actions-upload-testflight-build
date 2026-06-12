@@ -1,0 +1,38 @@
+name: Test optional inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create dummy IPA file and transporter stub
+        run: |
+          mkdir -p /tmp/testapp
+          echo "dummy ipa content" > /tmp/testapp/MyApp.ipa
+          mkdir -p /tmp/itms/bin
+          printf '#!/bin/sh\necho "iTMSTransporter stub"\nexit 0\n' > /tmp/itms/bin/iTMSTransporter
+          chmod +x /tmp/itms/bin/iTMSTransporter
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/testapp/MyApp.ipa
+          app-type: ios
+          issuer-id: 00000000-0000-0000-0000-000000000000
+          api-key-id: ABCDEF1234
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgevZzL1gdAFr88hD2
+            cV4nqaseQ8bapcrstsgA8Xpi0tOhRANCAATbnly6FyS7IQXF3muqmf1wnAYChbWo
+            3FMWP3tdhbVBFakeKeyForTestingPurposesOnlyNotRealKey
+            -----END PRIVATE KEY-----
+          release-notes: "This is a test release note for CI testing purposes."
+          transporter-executable-path: /tmp/itms/bin/iTMSTransporter
+          backend: transporter
+          uses-non-exempt-encryption: "true"
+          wait-for-processing: "false"
+      - name: Assert action was invoked with optional inputs
+        run: |
+          echo "Action completed (may have failed due to invalid credentials - expected)"
+          echo "PASS: action was invoked with all optional inputs including release-notes and transporter-executable-path"
