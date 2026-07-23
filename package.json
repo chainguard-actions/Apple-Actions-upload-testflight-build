@@ -1,0 +1,45 @@
+{
+  "name": "upload-testflight-action",
+  "version": "3.0.1",
+  "private": true,
+  "description": "A GitHub Action that uploads a app to Apple's TestFlight",
+  "main": "lib/main.js",
+  "engines": {
+    "node": "24"
+  },
+  "scripts": {
+    "build": "tsc --outDir lib",
+    "format": "prettier --write src/",
+    "format-check": "prettier --check src/",
+    "knip": "knip",
+    "lint": "eslint",
+    "package": "ncc build --license licenses.txt",
+    "all": "yarn format && yarn knip && yarn lint && yarn build && yarn package"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Apple-Actions/upload-testflight-build.git"
+  },
+  "keywords": [
+    "actions",
+    "node",
+    "setup"
+  ],
+  "author": "Itty Bitty Apps Pty Ltd",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "~1.11.0",
+    "@actions/exec": "~1.1.0",
+    "@actions/io": "~1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "~24.2.0",
+    "@vercel/ncc": "~0.38.0",
+    "eslint": "~9.33.0",
+    "eslint-plugin-github": "~6.0.0",
+    "knip": "~5.62.0",
+    "prettier": "~3.6.0",
+    "typescript": "~5.9.0"
+  },
+  "packageManager": "yarn@4.9.2"
+}
