@@ -1,0 +1,56 @@
+{
+  "name": "upload-testflight-action",
+  "version": "5.3.0",
+  "description": "A GitHub Action that uploads a app to Apple's TestFlight",
+  "type": "module",
+  "main": "src/main.ts",
+  "engines": {
+    "node": "24"
+  },
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node24 --format=esm --minify --alias:undici=./scripts/undici-stub.mjs --outfile=dist/index.js --banner:js=\"import{createRequire}from'node:module';const require=createRequire(import.meta.url);\"",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
+    "knip": "knip",
+    "lint": "eslint",
+    "test": "vitest run",
+    "type:check": "tsc --noEmit",
+    "all": "yarn format && yarn knip && yarn lint && yarn type:check && yarn test && yarn build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Apple-Actions/upload-testflight-build.git"
+  },
+  "keywords": [
+    "actions",
+    "apple",
+    "upload",
+    "testflight"
+  ],
+  "author": "Itty Bitty Apps Pty Ltd",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "~3.0.0",
+    "@actions/exec": "~3.0.0",
+    "@actions/io": "~3.0.0",
+    "adm-zip": "~0.6.0",
+    "bplist-parser": "~0.3.0",
+    "plist": "~5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "~24.12.0",
+    "esbuild": "~0.28.0",
+    "eslint": "~9.39.0",
+    "eslint-plugin-github": "~6.0.0",
+    "knip": "~6.23.0",
+    "prettier": "~3.9.0",
+    "typescript": "~6.0.0",
+    "vitest": "~4.1.0"
+  },
+  "packageManager": "yarn@4.18.0",
+  "knip": {
+    "ignore": [
+      "scripts/undici-stub.mjs"
+    ]
+  }
+}

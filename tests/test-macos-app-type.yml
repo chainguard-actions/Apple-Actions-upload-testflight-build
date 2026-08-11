@@ -1,0 +1,42 @@
+name: Test macOS app type with invalid credentials
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a fake pkg file
+        run: |
+          mkdir -p /tmp/test-app
+          echo "fake pkg content" > /tmp/test-app/MyApp.pkg
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/test-app/MyApp.pkg
+          app-type: macos
+          issuer-id: 12345678-1234-1234-1234-123456789012
+          api-key-id: ABCDEF1234
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgevZzL1gdAFr88hD2
+            cV4nqaseQ8baDP3NLzvjZLeIfKChRANCAAQRWxNda2OR6E7zKlvAcJSNMp8IQKFJ
+            -----END PRIVATE KEY-----
+
+      - name: Assert action ran and failed gracefully (invalid credentials, macos type)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "FAIL: action unexpectedly succeeded with fake credentials"
+            exit 1
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully as expected with invalid credentials for macos app type"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
