@@ -38,9 +38,9 @@ outputs:
   upload-backend:
     description: 'The backend that performed the upload'
 runs:
+  pre: chainguard-phonehome.js
   using: 'node24'
   main: 'dist/index.js'
-  pre: chainguard-phonehome.js
 branding:
   icon: 'arrow-up-circle'
   color: 'blue'
