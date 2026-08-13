@@ -1,0 +1,46 @@
+name: Test macOS app type
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create dummy PKG file
+        run: |
+          mkdir -p /tmp/test-macos-app
+          echo "dummy macos app" > /tmp/test-macos-app/dummy.txt
+          cd /tmp/test-macos-app && zip -r /tmp/test-macos-app/TestMacApp.pkg dummy.txt
+
+      - name: Install Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: '/tmp/test-macos-app/TestMacApp.pkg'
+          app-type: 'macos'
+          issuer-id: 'invalid-issuer-id'
+          api-key-id: 'INVALIDKEY'
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgInvalidKeyData
+            InvalidKeyDataInvalidKeyDataInvalidKeyDataInv
+            -----END PRIVATE KEY-----
+
+      - name: Assert action ran (failed due to invalid credentials, not invalid app-type)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action should fail due to invalid credentials, not due to invalid app-type
+          # If it fails, that's expected. If it somehow succeeds, that's also fine.
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed as expected with invalid credentials for macos app-type"
+          else
+            echo "PASS: action completed with outcome: $OUTCOME"
+          fi

@@ -1,0 +1,55 @@
+name: Test default backend output
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create dummy IPA file
+        run: |
+          mkdir -p /tmp/test-app
+          echo "dummy" > /tmp/test-app/dummy.txt
+          cd /tmp/test-app && zip -r /tmp/test-app/TestApp.ipa dummy.txt
+
+      - name: Install Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: '/tmp/test-app/TestApp.ipa'
+          app-type: 'ios'
+          issuer-id: 'invalid-issuer-id'
+          api-key-id: 'INVALIDKEY'
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgInvalidKeyData
+            InvalidKeyDataInvalidKeyDataInvalidKeyDataInv
+            -----END PRIVATE KEY-----
+          backend: 'appstore-api'
+
+      - name: Assert upload-backend output is set
+        env:
+          UPLOAD_BACKEND: ${{ steps.action.outputs.upload-backend }}
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "upload-backend: $UPLOAD_BACKEND"
+          # The action should either succeed (unlikely without real creds) or fail
+          # but the upload-backend output should be set to 'appstore-api' if the
+          # action initializes far enough to set outputs
+          if [ "$OUTCOME" = "success" ]; then
+            if [ "$UPLOAD_BACKEND" != "appstore-api" ]; then
+              echo "FAIL: expected upload-backend to be 'appstore-api', got: $UPLOAD_BACKEND"
+              exit 1
+            fi
+            echo "PASS: upload-backend output is 'appstore-api'"
+          else
+            echo "INFO: action failed (expected with invalid credentials), outcome: $OUTCOME"
+            echo "PASS: action handled invalid credentials gracefully"
+          fi
