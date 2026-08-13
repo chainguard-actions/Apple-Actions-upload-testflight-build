@@ -1,0 +1,29 @@
+name: Test transporter-executable-path input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/fake-app.ipa
+          app-type: ios
+          issuer-id: fake-issuer-id
+          api-key-id: fake-key-id
+          api-private-key: fake-private-key
+          backend: transporter
+          transporter-executable-path: /usr/local/custom-itms/bin/iTMSTransporter
+      - name: Assert action failed (transporter not supported on Linux or path missing)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "FAIL: expected action to fail when using transporter backend with a non-existent executable path on Linux"
+            exit 1
+          fi
+          echo "PASS: action failed as expected"

@@ -1,0 +1,53 @@
+name: Test transporter backend selection
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create dummy IPA file
+        run: |
+          mkdir -p /tmp/test-app
+          echo "dummy ipa content" > /tmp/test-app/app.ipa
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/test-app/app.ipa
+          app-type: ios
+          issuer-id: 00000000-0000-0000-0000-000000000000
+          api-key-id: INVALIDKEYID
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgevZzL1gdAFr88hD2
+            cV4nqDmSfpQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQn
+            QnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQnQn
+            -----END PRIVATE KEY-----
+          backend: transporter
+
+      - name: Assert action failed (transporter requires macOS, not available on Linux)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "FAIL: action should not succeed with transporter backend on Linux"
+            exit 1
+          fi
+          echo "PASS: action correctly failed with transporter backend on Linux"
+
+      - name: Assert upload-backend output is not set to appstore-api
+        env:
+          UPLOAD_BACKEND: ${{ steps.action.outputs.upload-backend }}
+        run: |
+          echo "upload-backend: '$UPLOAD_BACKEND'"
+          # The transporter backend was selected, so upload-backend should NOT be 'appstore-api'.
+          # Since the action fails before completing, the output will be empty.
+          if [ "$UPLOAD_BACKEND" = "appstore-api" ]; then
+            echo "FAIL: upload-backend should not be 'appstore-api' when transporter backend was selected"
+            exit 1
+          fi
+          echo "PASS: upload-backend is not 'appstore-api' when transporter backend was selected"

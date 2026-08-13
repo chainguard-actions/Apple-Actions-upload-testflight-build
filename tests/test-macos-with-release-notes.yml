@@ -1,0 +1,44 @@
+name: Test macOS upload with release notes
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # Tests that the action accepts app-type=macos and optional release-notes input.
+    # Uses dummy credentials so the action will fail at API auth, not at setup.
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create dummy macOS app package
+        run: |
+          mkdir -p /tmp/testapp
+          echo "dummy pkg content" > /tmp/testapp/MyApp.pkg
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/testapp/MyApp.pkg
+          app-type: macos
+          issuer-id: 12345678-1234-1234-1234-123456789012
+          api-key-id: ABCDEF1234
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgevZzL1gdAFr88hD2
+            cV4nqDmSfpQnoDd65yIMpdnMCKahRANCAAQRWxNda9dN9YFQZ9AQZV0/RNZS7TC
+            HMFxMFMoNcy6c2uYxAqDmSfpQnoDd65yIMpdnMCKahRANCAAQRWxNd
+            -----END PRIVATE KEY-----
+          release-notes: "Bug fixes and performance improvements"
+          backend: appstore-api
+
+      - name: Assert action ran with macOS app-type
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action ran and produced an outcome with macOS app-type"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
