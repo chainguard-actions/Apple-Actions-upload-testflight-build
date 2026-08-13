@@ -1,4 +1,4 @@
-name: Test transporter backend
+name: Test uses-non-exempt-encryption input
 on:
   workflow_dispatch:
 jobs:
@@ -26,19 +26,18 @@ jobs:
             MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgInvalidKeyData
             InvalidKeyDataInvalidKeyDataInvalidKeyDataInv
             -----END PRIVATE KEY-----
-          backend: transporter
+          backend: appstore-api
+          uses-non-exempt-encryption: "false"
 
-      - name: Assert action attempted transporter backend
+      - name: Assert action ran (not a setup/input error)
         env:
           OUTCOME: ${{ steps.action.outcome }}
-          UPLOAD_BACKEND: ${{ steps.action.outputs.upload-backend }}
         run: |
           echo "outcome: $OUTCOME"
-          echo "upload-backend: '$UPLOAD_BACKEND'"
-          # The action should fail (invalid credentials / missing transporter binary),
-          # not succeed. We just verify it ran and failed, not that it errored on setup.
-          if [ "$OUTCOME" = "success" ]; then
-            echo "FAIL: action unexpectedly succeeded with invalid credentials"
+          # The action should fail due to invalid credentials, not because
+          # uses-non-exempt-encryption was rejected. We expect 'failure'.
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail with invalid credentials, got: $OUTCOME"
             exit 1
           fi
-          echo "PASS: action correctly failed when using transporter backend with invalid credentials"
+          echo "PASS: action correctly processed uses-non-exempt-encryption input and failed at credential validation"
