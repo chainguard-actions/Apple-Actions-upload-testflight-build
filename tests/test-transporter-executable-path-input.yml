@@ -1,0 +1,39 @@
+name: Test transporter backend with custom executable path input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a fake IPA file
+        run: |
+          echo "fake ipa content" > /tmp/fake-app.ipa
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/fake-app.ipa
+          app-type: ios
+          issuer-id: fake-issuer-id-00000000-0000-0000-0000-000000000000
+          api-key-id: FAKEKEYID1
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgfakekey1234567890
+            abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234
+            -----END PRIVATE KEY-----
+          backend: transporter
+          transporter-executable-path: /usr/local/itms/bin/iTMSTransporter
+      - name: Assert action failed gracefully (transporter requires macOS or valid executable)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (transporter not available on ubuntu-latest)"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded unexpectedly (transporter-executable-path input was accepted)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

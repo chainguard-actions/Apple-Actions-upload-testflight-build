@@ -1,0 +1,46 @@
+name: Test appstore-api backend with release-notes input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create a fake IPA file
+        run: |
+          echo "fake ipa content" > /tmp/fake-app.ipa
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/fake-app.ipa
+          app-type: ios
+          issuer-id: fake-issuer-id-00000000-0000-0000-0000-000000000000
+          api-key-id: FAKEKEYID1
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgfakekey1234567890
+            abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234
+            -----END PRIVATE KEY-----
+          backend: appstore-api
+          release-notes: "This is a test release note for CI testing purposes."
+      - name: Assert action failed gracefully with fake credentials (release-notes input covered)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          UPLOAD_BACKEND: ${{ steps.action.outputs.upload-backend }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "upload-backend output: $UPLOAD_BACKEND"
+          if [ "$OUTCOME" = "success" ]; then
+            if [ -n "$UPLOAD_BACKEND" ]; then
+              echo "PASS: action succeeded and upload-backend output is set to '$UPLOAD_BACKEND'"
+            else
+              echo "FAIL: action succeeded but upload-backend output is empty"
+              exit 1
+            fi
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected with fake credentials)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

@@ -1,20 +1,101 @@
-# Apple-Actions/upload-testflight-build
+# GitHub Action to upload to Apple's TestFlight service
 
-Uploads an app to Apple TestFlight
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](LICENSE)
+[![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/Apple-Actions/upload-testflight-build](https://github.com/Apple-Actions/upload-testflight-build).
+## Getting Started
 
-## Versions
+Use the same App Store Connect API key as [`download-provisioning-profiles`](https://github.com/Apple-Actions/download-provisioning-profiles).
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v3.0.1 | [`v3.0.1`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v3.0.1) | [`9fd28d4`](https://github.com/Apple-Actions/upload-testflight-build/commit/9fd28d4e690396e43caca69cef54cccccce77034) |
-| v4.1.0 | [`v4.1.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v4.1.0) | [`b527024`](https://github.com/Apple-Actions/upload-testflight-build/commit/b5270248e0ee7f200475125bddf7c0e5616386b5) |
-| v5.0.0 | [`v5.0.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.0.0) | [`9af5bd7`](https://github.com/Apple-Actions/upload-testflight-build/commit/9af5bd758aaff3f82a372079a38f029d60a7163b) |
-| v5.1.0 | [`v5.1.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.1.0) | [`b726677`](https://github.com/Apple-Actions/upload-testflight-build/commit/b72667704c7f5ecb2f1dddd131870b477d86a313) |
-| v5.2.0 | [`v5.2.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.2.0) | [`87088f1`](https://github.com/Apple-Actions/upload-testflight-build/commit/87088f152f34157271ef8653d9a9571c9727d25e) |
-| v5.2.1 | [`v5.2.1`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.2.1) | [`1ad5803`](https://github.com/Apple-Actions/upload-testflight-build/commit/1ad58030672057aa084b4e96beb6f7a8c627f9e6) |
-| v5.3.0 | [`v5.3.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.3.0) | [`5e75ff5`](https://github.com/Apple-Actions/upload-testflight-build/commit/5e75ff58276689011512ba87a381d93dc67dbcf8) |
+### Canonical GitHub ENVs
+
+| Kind | Name | Purpose |
+| --- | --- | --- |
+| Variable | `APPSTORE_ISSUER_ID` | App Store Connect issuer ID |
+| Variable | `APPSTORE_API_KEY_ID` | App Store Connect API key ID |
+| Secret | `APPSTORE_API_PRIVATE_KEY` | Contents of `AuthKey_*.p8` |
+
+1. Create an [App Store Connect API key](https://developer.apple.com/documentation/appstoreconnectapi/creating-api-keys-for-app-store-connect-api) with the role `App Manager`
+2. Download `AuthKey_<key_id>.p8` when the key is created (shown once)
+3. Set the variable/secret names above (or run [`scripts/setup.sh`](https://github.com/Apple-Actions/download-provisioning-profiles#one-shot-setup) / `configure-github.sh`)
+
+Issuer ID: [App Store Connect → Users and Access → Integrations → App Store Connect API](https://appstoreconnect.apple.com/access/integrations/api)
+
+## Usage
+
+```yaml
+- name: Upload app to TestFlight
+  uses: apple-actions/upload-testflight-build@v5
+  with:
+    app-path: 'path/to/application.ipa'
+    issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
+    api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
+    api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+    release-notes: ${{ steps.generate_notes.outputs.whats_new }} # optional
+    uses-non-exempt-encryption: 'false' # optional: "true" or "false" maps directly to App Store Connect usesNonExemptEncryption
+    wait-for-processing: 'true' # optional: set to "false" to skip waiting (metadata updates will be skipped)
+    backend: AppStoreAPI # optional: AppStoreAPI | transporter | altool (default: AppStoreAPI; case insensitive)
+```
+
+> [!NOTE]
+> Attaching `release-notes` requires TestFlight **Test Information** (Beta App Description, Feedback Email, and a primary locale) to be filled in App Store Connect. If notes cannot be attached after a successful upload, the action fails and the error explains how to fix it (for example, missing Test Information) instead of a generic polling timeout.
+
+Populate Test Information from your app repo (bundle id, description, and feedback email) with the same credential flags as [`download-provisioning-profiles`](https://github.com/Apple-Actions/download-provisioning-profiles) (`curl`, `jq`, `openssl`, and `python3`). The script prints what it would write; pass `--apply` to send it to App Store Connect:
+
+```bash
+./scripts/populate-test-information.sh --dir /path/to/your/app
+./scripts/populate-test-information.sh --dir /path/to/your/app --apply \
+  --issuer-id 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' \
+  --api-key-id 'XXXXXXXXXX' \
+  --api-private-key-path ~/Downloads/AuthKey_XXXXXXXXXX.p8
+```
+
+The script looks for `.apple-actions/test-information.json`, then Expo `app.json` / `app.config.json`, `Config/Shared.xcconfig`, `Info.plist`, `package.json`, `mailto:` / support emails in source, and `README.md`. Commit a config file when those sources are incomplete:
+
+```json
+{
+  "bundleId": "com.example.app",
+  "locale": "en-US",
+  "description": "Help us test the latest beta.",
+  "feedbackEmail": "feedback@example.com"
+}
+```
+
+> [!IMPORTANT]
+> `transporter` backend requires Transporter to be installed on the runner and the action now calls the installed binary directly (no `xcrun` shim).
+> The GitHub hosted runners (Xcode 14+) do not have Transporter installed by default.
+> You can install it in your workflow before this action runs:
+>
+> ```yaml
+> - name: Install Transporter
+>   run: |
+>     url="https://itunesconnect.apple.com/WebObjects/iTunesConnect.woa/ra/resources/download/public/Transporter__OSX/bin/"
+>     curl -fsSL "$url" -o "/tmp/itmstransporter.pkg"
+>     sudo installer -pkg "/tmp/itmstransporter.pkg" -target /
+>     /usr/local/itms/bin/iTMSTransporter -help
+> ```
+>
+> Alternatively, use a self-hosted runner that already has Transporter installed at `/usr/local/itms/bin/iTMSTransporter`.
+
+> [!NOTE]
+> The default `appstore-api` backend only supports `.ipa` uploads. For macOS (`.pkg`) builds, set `backend: altool` or `backend: transporter`.
+
+## Upgrading from v3 or earlier v4
+
+* The default upload backend is now `appstore-api` (uses the App Store Connect API directly and works on Linux and macOS runners). If you depended on the previous behavior, set `backend: altool` or `backend: transporter`.
+* The `transporter-response` output has been removed. Use the `upload-backend` output if you need to know which backend handled the upload.
+
+## Additional Arguments
+
+See [action.yml](action.yml) for more details.
+
+## Contributing
+
+We welcome your interest in contributing to this project. Please read the [Contribution Guidelines](CONTRIBUTING.md) for more guidance.
+
+## License
+
+Any contributions made under this project will be governed by the [MIT License](LICENSE).
 
 ## Privacy
 
