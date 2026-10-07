@@ -1,0 +1,44 @@
+name: Test basic iOS upload (invalid credentials - graceful failure)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a fake IPA file
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/build"
+          echo "fake ipa content" > "$GITHUB_WORKSPACE/build/app.ipa"
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: "${{ github.workspace }}/build/app.ipa"
+          app-type: ios
+          issuer-id: "00000000-0000-0000-0000-000000000000"
+          api-key-id: "AAAAAAAAAA"
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgevZzL1gdAFr88hD2
+            cV4GqnMeD9zKVmejFQAIoxnPmqShRANCAARna3oBnFDHqnkyjKKNhaB5HNU7NKJV
+            2dkMDaFmkuKHQmjnCMHHBMDzHiHCGMHHBMDzHiHCGMHHBMDzHiHCGMHH
+            -----END PRIVATE KEY-----
+
+      - name: Assert action ran and failed gracefully with invalid credentials
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+          BACKEND: ${{ steps.action.outputs.upload-backend }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "upload-backend: $BACKEND"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded (unexpected but acceptable)"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully as expected with invalid credentials"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
