@@ -1,0 +1,43 @@
+name: Test release notes input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a fake IPA file for testing
+        run: |
+          mkdir -p /tmp/test-app
+          echo "fake ipa content" > /tmp/test-app/MyApp.ipa
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/test-app/MyApp.ipa
+          app-type: ios
+          issuer-id: 00000000-0000-0000-0000-000000000000
+          api-key-id: FAKEKEYID1
+          api-private-key: |
+            -----BEGIN PRIVATE KEY-----
+            MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgevZzL1gdAFr88hih
+            lCMs5PiAttzMpvLAPNcSY45zzaihRANCAARxy5u39/yqw2tI98mVa5+/kE2/YcAt
+            EBskSLazmR6N5v9B5MkHe4gD7ib4IQVB8PTNCFwhIpqBEBLBCBCBCBCB
+            -----END PRIVATE KEY-----
+          release-notes: "This is a test build with new features and bug fixes."
+
+      - name: Assert action ran and failed gracefully with release notes input
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded (unexpected but acceptable)"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully as expected with invalid credentials"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

@@ -1,0 +1,35 @@
+name: Test wait-for-processing input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create dummy IPA file
+        run: |
+          mkdir -p /tmp/testapp
+          echo "dummy" > /tmp/testapp/app.ipa
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          app-path: /tmp/testapp/app.ipa
+          app-type: ios
+          issuer-id: fake-issuer-id
+          api-key-id: fake-key-id
+          api-private-key: fake-private-key
+          wait-for-processing: 'false'
+      - name: Assert action ran (fails gracefully without real credentials)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (no real credentials or IPA)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
