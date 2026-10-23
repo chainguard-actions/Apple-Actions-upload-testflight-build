@@ -19,6 +19,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v5.5.0 | [`v5.5.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.5.0) | [`14df18f`](https://github.com/Apple-Actions/upload-testflight-build/commit/14df18fee5a4ff3b76971dd382f033494a0194e9) |
 | v5.5.1 | [`v5.5.1`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.5.1) | [`65a84cd`](https://github.com/Apple-Actions/upload-testflight-build/commit/65a84cdb671ee2ccfa93710cd58e8f7b5d251967) |
 | v5.6.0 | [`v5.6.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.6.0) | [`155ea93`](https://github.com/Apple-Actions/upload-testflight-build/commit/155ea93be9ee6d5186c71f660a612f5eddb14510) |
+| v5.7.0 | [`v5.7.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.7.0) | [`acf1166`](https://github.com/Apple-Actions/upload-testflight-build/commit/acf1166e95edc302069b74b258a788004fe39a08) |
 
 ## Privacy
 
