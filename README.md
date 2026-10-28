@@ -1,25 +1,163 @@
-# Apple-Actions/upload-testflight-build
+# GitHub Action to upload to Apple's TestFlight service
 
-Uploads an app to Apple TestFlight
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](LICENSE)
+[![PRs welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/Apple-Actions/upload-testflight-build](https://github.com/Apple-Actions/upload-testflight-build).
+## Getting Started
 
-## Versions
+Use the same App Store Connect API key as [`download-provisioning-profiles`](https://github.com/Apple-Actions/download-provisioning-profiles).
 
-| Version | Tag | Upstream commit | Hardening report |
-|---------|-----|-----------------|------------------|
-| v3.0.1 | [`v3.0.1`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v3.0.1) | [`9fd28d4`](https://github.com/Apple-Actions/upload-testflight-build/commit/9fd28d4e690396e43caca69cef54cccccce77034) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v3.0.1/HARDENING.md) |
-| v4.1.0 | [`v4.1.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v4.1.0) | [`b527024`](https://github.com/Apple-Actions/upload-testflight-build/commit/b5270248e0ee7f200475125bddf7c0e5616386b5) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v4.1.0/HARDENING.md) |
-| v5.0.0 | [`v5.0.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.0.0) | [`9af5bd7`](https://github.com/Apple-Actions/upload-testflight-build/commit/9af5bd758aaff3f82a372079a38f029d60a7163b) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.0.0/HARDENING.md) |
-| v5.1.0 | [`v5.1.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.1.0) | [`b726677`](https://github.com/Apple-Actions/upload-testflight-build/commit/b72667704c7f5ecb2f1dddd131870b477d86a313) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.1.0/HARDENING.md) |
-| v5.2.0 | [`v5.2.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.2.0) | [`87088f1`](https://github.com/Apple-Actions/upload-testflight-build/commit/87088f152f34157271ef8653d9a9571c9727d25e) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.2.0/HARDENING.md) |
-| v5.2.1 | [`v5.2.1`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.2.1) | [`1ad5803`](https://github.com/Apple-Actions/upload-testflight-build/commit/1ad58030672057aa084b4e96beb6f7a8c627f9e6) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.2.1/HARDENING.md) |
-| v5.3.0 | [`v5.3.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.3.0) | [`5e75ff5`](https://github.com/Apple-Actions/upload-testflight-build/commit/5e75ff58276689011512ba87a381d93dc67dbcf8) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.3.0/HARDENING.md) |
-| v5.4.0 | [`v5.4.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.4.0) | [`1fc69ca`](https://github.com/Apple-Actions/upload-testflight-build/commit/1fc69ca369a60b813eaaa2d936eda22794b52e17) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.4.0/HARDENING.md) |
-| v5.5.0 | [`v5.5.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.5.0) | [`14df18f`](https://github.com/Apple-Actions/upload-testflight-build/commit/14df18fee5a4ff3b76971dd382f033494a0194e9) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.5.0/HARDENING.md) |
-| v5.5.1 | [`v5.5.1`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.5.1) | [`65a84cd`](https://github.com/Apple-Actions/upload-testflight-build/commit/65a84cdb671ee2ccfa93710cd58e8f7b5d251967) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.5.1/HARDENING.md) |
-| v5.6.0 | [`v5.6.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.6.0) | [`155ea93`](https://github.com/Apple-Actions/upload-testflight-build/commit/155ea93be9ee6d5186c71f660a612f5eddb14510) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.6.0/HARDENING.md) |
-| v5.7.0 | [`v5.7.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.7.0) | [`acf1166`](https://github.com/Apple-Actions/upload-testflight-build/commit/acf1166e95edc302069b74b258a788004fe39a08) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.7.0/HARDENING.md) |
+### Canonical GitHub ENVs
+
+| Kind | Name | Purpose |
+| --- | --- | --- |
+| Variable | `APPSTORE_ISSUER_ID` | App Store Connect issuer ID |
+| Variable | `APPSTORE_API_KEY_ID` | App Store Connect API key ID |
+| Secret | `APPSTORE_API_PRIVATE_KEY` | Contents of `AuthKey_*.p8` |
+
+1. Create an [App Store Connect API key](https://developer.apple.com/documentation/appstoreconnectapi/creating-api-keys-for-app-store-connect-api) with the role `App Manager`
+2. Download `AuthKey_<key_id>.p8` when the key is created (shown once)
+3. Set the variable/secret names above (or run [`scripts/setup.sh`](https://github.com/Apple-Actions/download-provisioning-profiles#one-shot-setup) / `configure-github.sh`)
+
+Issuer ID: [App Store Connect → Users and Access → Integrations → App Store Connect API](https://appstoreconnect.apple.com/access/integrations/api)
+
+## Usage
+
+```yaml
+- name: Upload app to TestFlight
+  uses: apple-actions/upload-testflight-build@v5
+  with:
+    app-path: 'path/to/application.ipa'
+    issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
+    api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
+    api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+    release-notes: ${{ steps.generate_notes.outputs.whats_new }} # optional
+    uses-non-exempt-encryption: 'false' # optional: "true" or "false" maps directly to App Store Connect usesNonExemptEncryption
+    wait-for-processing: 'true' # optional: set to "false" to skip waiting (metadata updates and group assignment will be skipped)
+    groups-file: .apple-actions/testflight-groups.txt # optional: add the build to these TestFlight groups
+    backend: AppStoreAPI # optional: AppStoreAPI | transporter | altool (default: AppStoreAPI; case insensitive)
+```
+
+> [!NOTE]
+> When `wait-for-processing` is enabled (the default), the action checks TestFlight **Test Information** (Beta App Description, Feedback Email, and a primary locale) **before** uploading. Missing Test Information fails the step immediately so a build is not left half-processed in App Store Connect. Attaching `release-notes` still requires the same Test Information after upload. While waiting, `INVALID` or `FAILED` processing states fail immediately instead of polling until timeout; if waiting times out without a terminal state, the error names common blockers (Test Information, export compliance). Problems that can be caught locally, such as an app file whose `Info.plist` can't be read or an invalid `uses-non-exempt-encryption` value, also fail before anything is uploaded.
+
+### Add the build to TestFlight groups
+
+Opt-in: provide **either** a checked-in file **or** an inline list (not both). Exact App Store Connect group names; case-sensitive. Requires `wait-for-processing` (the default).
+
+**Recommended (revision history):** commit a file and pass `groups-file`:
+
+```text
+# .apple-actions/testflight-groups.txt
+# Exact App Store Connect TestFlight group names
+QA
+Friends & Family
+```
+
+```yaml
+    groups-file: .apple-actions/testflight-groups.txt
+```
+
+**Alternatively:** pass `groups` (comma- or newline-separated), including from a GitHub Actions variable:
+
+```yaml
+    groups: ${{ vars.TESTFLIGHT_GROUPS }}
+```
+
+After upload, the action links the build to each named group. For external groups, if App Store Connect reports `externalBuildState=READY_FOR_BETA_SUBMISSION`, it also creates a beta app review submission so testers can receive the build once review completes. Groups with “Access to All Builds” are left unchanged (they already see the build).
+
+Populate Test Information from your app repo (bundle id, description, and feedback email) with the same credential flags as [`download-provisioning-profiles`](https://github.com/Apple-Actions/download-provisioning-profiles) (`curl`, `jq`, `openssl`, and `python3`). The script prints what it would write; pass `--apply` to send it to App Store Connect:
+
+```bash
+./scripts/populate-test-information.sh --dir /path/to/your/app
+./scripts/populate-test-information.sh --dir /path/to/your/app --apply \
+  --issuer-id 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' \
+  --api-key-id 'XXXXXXXXXX' \
+  --api-private-key-path ~/Downloads/AuthKey_XXXXXXXXXX.p8
+```
+
+The script looks for `.apple-actions/test-information.json`, then Expo `app.json` / `app.config.json`, `Config/Shared.xcconfig`, `Info.plist`, `package.json`, `mailto:` / support emails in source, and `README.md`. Commit a config file when those sources are incomplete:
+
+```json
+{
+  "bundleId": "com.example.app",
+  "locale": "en-US",
+  "description": "Help us test the latest beta.",
+  "feedbackEmail": "feedback@example.com"
+}
+```
+
+> [!IMPORTANT]
+> `transporter` backend requires Transporter to be installed on the runner and the action now calls the installed binary directly (no `xcrun` shim).
+> The GitHub hosted runners (Xcode 14+) do not have Transporter installed by default.
+> You can install it in your workflow before this action runs:
+>
+> ```yaml
+> - name: Install Transporter
+>   run: |
+>     url="https://itunesconnect.apple.com/WebObjects/iTunesConnect.woa/ra/resources/download/public/Transporter__OSX/bin/"
+>     curl -fsSL "$url" -o "/tmp/itmstransporter.pkg"
+>     sudo installer -pkg "/tmp/itmstransporter.pkg" -target /
+>     /usr/local/itms/bin/iTMSTransporter -help
+> ```
+>
+> Alternatively, use a self-hosted runner that already has Transporter installed at `/usr/local/itms/bin/iTMSTransporter`.
+
+> [!NOTE]
+> The default `appstore-api` backend only supports `.ipa` uploads. For macOS (`.pkg`) builds, set `backend: altool` or `backend: transporter`. `release-notes` and `uses-non-exempt-encryption` work for `.pkg` uploads too: the action reads the bundle ID and build number from the top-level app's `Contents/Info.plist` inside the package.
+
+### macOS
+
+Upload the `.pkg` from an App Store export by [`Apple-Actions/xcodebuild`](https://github.com/Apple-Actions/xcodebuild#macos-mac-app-store-and-developer-id-from-one-archive) (v1.1.0 or later, which adds the `pkg-path` output). Use `backend: altool`: it is preinstalled with Xcode, unlike Transporter, and recovers from stuck uploads (see below).
+
+```yaml
+- id: build
+  uses: Apple-Actions/xcodebuild@v1
+  with:
+    project: App.xcodeproj
+    scheme: App
+    action: archive
+    archive-path: .build/Artifacts/App.xcarchive
+    export-options-plist: ExportOptions.plist
+
+- name: Upload app to TestFlight
+  uses: apple-actions/upload-testflight-build@v5
+  with:
+    app-path: ${{ steps.build.outputs.pkg-path }}
+    app-type: macos
+    backend: altool
+    issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
+    api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
+    api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+```
+
+See [`Apple-Actions/Example-macOS`](https://github.com/Apple-Actions/Example-macOS) for the full workflow, which also exports a Developer ID build from the same archive and [notarizes](https://github.com/Apple-Actions/notarize) it as a DMG. Signing identities come from [`import-codesign-certs`](https://github.com/Apple-Actions/import-codesign-certs) and profiles from [`download-provisioning-profiles`](https://github.com/Apple-Actions/download-provisioning-profiles#macos-app-store-and-developer-id).
+
+> [!NOTE]
+> After a dropped connection, `altool` can retry the same upload part forever (`WILL RETRY PART 1. Checksums do not match.`). The `altool` backend watches for this, kills `altool` and its child processes, deletes the abandoned App Store Connect build upload, clears `altool`'s saved resume state, and starts a fresh upload. `upload-attempts` (default `2`) sets how many runs to try. `upload-timeout-minutes` optionally caps each run and is handled the same way.
+>
+> ```yaml
+>     backend: altool
+>     upload-attempts: '3' # optional
+>     upload-timeout-minutes: '20' # optional
+> ```
+
+## Upgrading from v3 or earlier v4
+
+* The default upload backend is now `appstore-api` (uses the App Store Connect API directly and works on Linux and macOS runners). If you depended on the previous behavior, set `backend: altool` or `backend: transporter`.
+* The `transporter-response` output has been removed. Use the `upload-backend` output if you need to know which backend handled the upload.
+
+## Additional Arguments
+
+See [action.yml](action.yml) for more details.
+
+## Contributing
+
+We welcome your interest in contributing to this project. Please read the [Contribution Guidelines](CONTRIBUTING.md) for more guidance.
+
+## License
+
+Any contributions made under this project will be governed by the [MIT License](LICENSE).
 
 ## Privacy
 
