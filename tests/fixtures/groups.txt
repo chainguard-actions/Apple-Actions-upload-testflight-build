@@ -1,0 +1,3 @@
+# TestFlight beta groups
+Internal Testers
+External Beta # trailing comment
