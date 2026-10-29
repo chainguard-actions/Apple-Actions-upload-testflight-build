@@ -21,6 +21,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v5.6.0 | [`v5.6.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.6.0) | [`155ea93`](https://github.com/Apple-Actions/upload-testflight-build/commit/155ea93be9ee6d5186c71f660a612f5eddb14510) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.6.0/HARDENING.md) |
 | v5.7.0 | [`v5.7.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.7.0) | [`acf1166`](https://github.com/Apple-Actions/upload-testflight-build/commit/acf1166e95edc302069b74b258a788004fe39a08) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.7.0/HARDENING.md) |
 | v5.8.0 | [`v5.8.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.8.0) | [`958b2fe`](https://github.com/Apple-Actions/upload-testflight-build/commit/958b2fe4969e2ab1824f79f07c270b950f06bb3a) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.8.0/HARDENING.md) |
+| v5.9.0 | [`v5.9.0`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/tree/v5.9.0) | [`665328a`](https://github.com/Apple-Actions/upload-testflight-build/commit/665328adbecbc3ad929d3da710696d928b8a7ba9) | [`HARDENING.md`](https://github.com/chainguard-actions/Apple-Actions-upload-testflight-build/blob/v5.9.0/HARDENING.md) |
 
 ## Privacy
 
